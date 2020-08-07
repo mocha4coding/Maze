@@ -12,8 +12,6 @@ public class MazeGenerator : MonoBehaviour
 
     [SerializeField]
     private GameObject mazeCell;
-
-    //public bool disableCellSprite;
     public class Cell
     {
         public Vector2 gridPos;
@@ -24,7 +22,7 @@ public class MazeGenerator : MonoBehaviour
     }
     private Dictionary<Vector2, Cell> allCells = new Dictionary<Vector2, Cell>();
     private List<Cell> visited = new List<Cell>();
-    
+   
    
 
     private void Start()
@@ -34,13 +32,11 @@ public class MazeGenerator : MonoBehaviour
 
     private void GenerateMaze(int rows, int columns)
     {
-        //if (mazeParent != null) Destroy(mazeParent);
-
         mazeRows = rows;
         mazeColumns = columns;
         CreateLayout();
         StartAlgorithm();
-        //MakeExit();
+        
     }
 
     
@@ -50,9 +46,6 @@ public class MazeGenerator : MonoBehaviour
     //This basically creates the grid of cells
     private void CreateLayout() 
     {
-        //mazeParent = new GameObject();
-        // mazeParent.transform.position = Vector2.zero;
-        // mazeParent.name = "Maze";
         float cellSize = 0.98f;
         Vector2 startPos = new Vector2(-9.5f, 4.5f);
         Vector2 spawnPos = startPos;
@@ -87,72 +80,71 @@ public class MazeGenerator : MonoBehaviour
     }
     private void StartAlgorithm()
     {
-        Cell currentCell = allCells[new Vector2(0,0)];
+        Cell currentCell = new Cell();
         List<Cell> Stack = new List<Cell>();
-        Stack.Add(currentCell);
-
-        while (visited.Count < allCells.Count && Stack.Count > 0)
+        Stack.Add(allCells[new Vector2(0, 0)]);
+        Stack.Add(allCells[new Vector2(0, 0)]);
+        while (visited.Count < allCells.Count )
         {
+            
             currentCell = Stack[Stack.Count - 1];
+            Debug.Log("Current Cell is " + currentCell.gridPos.x + "," + currentCell.gridPos.y); 
             Stack.Remove(currentCell);
 
             if (!visited.Contains(currentCell))
             {
                 visited.Add(currentCell);
+                
             }
-
             List<Cell> neighbors = GetUnvisitedNeighbour(currentCell);
 
-            foreach (Cell neighboringCell in neighbors)
+            /*foreach (Cell neighboringCell in neighbors)
             {
-                if (!visited.Contains(neighboringCell))
+                if (!(visited.Contains(neighboringCell) && Stack.Contains(neighboringCell) ) )
                 {
                     Stack.Add(neighboringCell);
                 }
-            }
-            AbolishAdjacentWall(Stack[Stack.Count - 1], currentCell);
-
-        }
-        /*Cell neighboringCell = new Cell();
-
-        if(neighbors.Count > 0)
-        {
-            for(int i = 0; i < neighbors.Count; i++)
+            }*/
+            if(neighbors.Count > 0)
             {
-                Stack.Add(neighbors[i]);
+                Cell randomNeighbor = neighbors[neighbors.Count - 1];
+                Debug.Log("Neighbor chosen " + randomNeighbor.gridPos.x + "," + randomNeighbor.gridPos.y);
+                Stack.Add(randomNeighbor);
+                Stack.Add(randomNeighbor);
+                //inserting twice, one to pop at begin and another one to keep record of cells which have possible unvisited neighbors
+                AbolishAdjacentWall(Stack[Stack.Count - 1], currentCell);
             }
-            neighboringCell = Stack[Stack.Count - 1];
-            visited.Add(neighboringCell);
-            AbolishAdjacentWall(neighboringCell, currentCell);
-
+            else
+            {
+                Stack.Remove(currentCell);
+            }
+            
+            
         }
-        else
-        {
-            Stack.Remove(currentCell);
-            visited.Add(currentCell);
-            currentCell = Stack[Stack.Count - 1];
-        }*/
-
-
-    
-     
+           
     }
 
     private void AbolishAdjacentWall(Cell neighbor, Cell currentCell)
     {
+        Vector2 relativePosition = neighbor.gridPos - currentCell.gridPos;
+        //Debug.Log("Relative position is " + relativePosition.x + "," +relativePosition.y);
         if (relativePosition.x == -1 )
-        {           
+        {
+            Debug.Log(" D of neighbor and U of current cell abolished");
             neighbor.cScript.Wall_D.SetActive(false);
             currentCell.cScript.Wall_U.SetActive(false);
+            
             return;
         }
         else if (relativePosition.x == 1)
         {
+            Debug.Log(" U of neighbor and D of current cell abolished");
             neighbor.cScript.Wall_U.SetActive(false);
             currentCell.cScript.Wall_D.SetActive(false);
+           
             return;
         }
-         else if (relativePosition.y == -1)
+        else if (relativePosition.y == -1)
         {
             Debug.Log(" R of neighbor and L of current cell abolished");
             neighbor.cScript.Wall_R.SetActive(false);
@@ -170,24 +162,25 @@ public class MazeGenerator : MonoBehaviour
     }
 
     
+
     private List<Cell> GetUnvisitedNeighbour(Cell curCell)
     {
         Vector2 pos = curCell.gridPos;
         List<Cell> neighborsList = new List<Cell>();
         Cell neighbor = new Cell();
 
-
-        Vector2 U_adjacent = pos;//position of up adjacent grid
-        U_adjacent.y -= 1;
-        if(allCells.ContainsKey(U_adjacent))
+        
+        Vector2 R_adjacent = pos;//position of right adjacent grid
+        R_adjacent.x += 1;
+        if (allCells.ContainsKey(R_adjacent))
         {
-            neighbor = allCells[U_adjacent];
+            neighbor = allCells[R_adjacent];
         }
-        if(!visited.Contains(neighbor) && neighbor != curCell)
+        if (!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
+            
         }
-
 
         Vector2 D_adjacent = pos;//position of down adjacent grid
         D_adjacent.y += 1;
@@ -198,18 +191,20 @@ public class MazeGenerator : MonoBehaviour
         if (!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
+            
         }
 
 
-        Vector2 R_adjacent = pos;//position of right adjacent grid
-        R_adjacent.x += 1;
-        if (allCells.ContainsKey(R_adjacent))
+        Vector2 U_adjacent = pos;//position of up adjacent grid
+        U_adjacent.y -= 1;
+        if (allCells.ContainsKey(U_adjacent))
         {
-            neighbor = allCells[R_adjacent];
+            neighbor = allCells[U_adjacent];
         }
         if (!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
+            
         }
 
 
@@ -222,8 +217,12 @@ public class MazeGenerator : MonoBehaviour
         if (!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
+            
         }
-        neighborsList = neighborsList.OrderBy(x => Guid.NewGuid()).ToList();
+        neighborsList = neighborsList.OrderBy(x => Guid.NewGuid()).ToList();//to shuffle the list
         return neighborsList;
+        
     }
+
+    
 }
