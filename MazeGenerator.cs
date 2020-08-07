@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Transactions;
@@ -151,28 +152,24 @@ public class MazeGenerator : MonoBehaviour
             currentCell.cScript.Wall_D.SetActive(false);
             return;
         }
-        else if (relativePosition.y == -1)
-        {              
-            neighbor.cScript.Wall_L.SetActive(false);
-            currentCell.cScript.Wall_R.SetActive(false);
-            return;
-        }
-        else if (relativePosition.y == 1)
+         else if (relativePosition.y == -1)
         {
+            Debug.Log(" R of neighbor and L of current cell abolished");
             neighbor.cScript.Wall_R.SetActive(false);
             currentCell.cScript.Wall_L.SetActive(false);
             return;
         }
+        else if (relativePosition.y == 1)
+        {
+            
+            Debug.Log(" L of neighbor and R of current cell abolished");
+            neighbor.cScript.Wall_L.SetActive(false);
+            currentCell.cScript.Wall_R.SetActive(false);
+            return;
+        }
     }
 
-    private void RemoveWall(CellScript cScript, int wallID)
-    {
-        if (wallID == 1) cScript.Wall_L.SetActive(false);
-        else if (wallID == 2) cScript.Wall_R.SetActive(false);
-        else if (wallID == 3) cScript.Wall_U.SetActive(false);
-        else if (wallID == 4) cScript.Wall_D.SetActive(false);
-    }
-
+    
     private List<Cell> GetUnvisitedNeighbour(Cell curCell)
     {
         Vector2 pos = curCell.gridPos;
@@ -226,7 +223,7 @@ public class MazeGenerator : MonoBehaviour
         {
             neighborsList.Add(neighbor);
         }
-
+        neighborsList = neighborsList.OrderBy(x => Guid.NewGuid()).ToList();
         return neighborsList;
     }
 }
