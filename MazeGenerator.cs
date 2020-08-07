@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Transactions;
@@ -18,9 +18,11 @@ public class MazeGenerator : MonoBehaviour
         public Vector2 gridPos;
         public GameObject cellObject;
         public CellScript cScript;
+
+    
     }
     private Dictionary<Vector2, Cell> allCells = new Dictionary<Vector2, Cell>();
-    private List<Cell> unvisited = new List<Cell>();
+    private List<Cell> visited = new List<Cell>();
     
    
 
@@ -80,42 +82,58 @@ public class MazeGenerator : MonoBehaviour
         newCell.cScript = newCell.cellObject.GetComponent<CellScript>();
         
         allCells[keyPos] = newCell;
-        unvisited.Add(newCell);
+        
     }
     private void StartAlgorithm()
     {
-        Cell currentCell = unvisited[0];
+        Cell currentCell = allCells[new Vector2(0,0)];
         List<Cell> Stack = new List<Cell>();
         Stack.Add(currentCell);
 
-        while(unvisited.Count > 0 && Stack.Count > 0)
+        while (visited.Count < allCells.Count && Stack.Count > 0)
         {
-            //getting an unvisited neighbor
+            currentCell = Stack[Stack.Count - 1];
+            Stack.Remove(currentCell);
+
+            if (!visited.Contains(currentCell))
+            {
+                visited.Add(currentCell);
+            }
+
             List<Cell> neighbors = GetUnvisitedNeighbour(currentCell);
-            Cell neighboringCell = new Cell();
-            //if neighbor is found, we abolish the wall between current cell and neighbor cell
-            //and add the neighbor to the stack
-            //else we mark the current cell as visited and remove it from the stack
-            
-            if(neighbors.Count > 0)
+
+            foreach (Cell neighboringCell in neighbors)
             {
-                for(int i = 0; i < neighbors.Count; i++)
+                if (!visited.Contains(neighboringCell))
                 {
-                    Stack.Add(neighbors[i]);
+                    Stack.Add(neighboringCell);
                 }
-                neighboringCell = Stack[Stack.Count - 1];
-                AbolishAdjacentWall(neighboringCell, currentCell);
-                currentCell = neighboringCell;
             }
-            else
-            {
-                Stack.Remove(currentCell);
-                unvisited.Remove(currentCell);
-                currentCell = Stack[Stack.Count - 1];
-            }
-            
+            AbolishAdjacentWall(Stack[Stack.Count - 1], currentCell);
 
         }
+        /*Cell neighboringCell = new Cell();
+
+        if(neighbors.Count > 0)
+        {
+            for(int i = 0; i < neighbors.Count; i++)
+            {
+                Stack.Add(neighbors[i]);
+            }
+            neighboringCell = Stack[Stack.Count - 1];
+            visited.Add(neighboringCell);
+            AbolishAdjacentWall(neighboringCell, currentCell);
+
+        }
+        else
+        {
+            Stack.Remove(currentCell);
+            visited.Add(currentCell);
+            currentCell = Stack[Stack.Count - 1];
+        }*/
+
+
+    
      
     }
 
@@ -128,24 +146,55 @@ public class MazeGenerator : MonoBehaviour
             currentCell.cScript.Wall_L.SetActive(false);
             return;
         }
-        if (relativePosition.x == 1)
+        else if (relativePosition.x == 1)
         {
             neighbor.cScript.Wall_L.SetActive(false);
             currentCell.cScript.Wall_R.SetActive(false);
             return;
         }
-        /*if (relativePosition.y == -1)
+        else if (relativePosition.y == -1)
+        {
+            neighbor.cScript.Wall_U.SetActive(false);
+            currentCell.cScript.Wall_D.SetActive(false);
+            return;
+        }
+        else if (relativePosition.y == 1)
         {
             neighbor.cScript.Wall_D.SetActive(false);
             currentCell.cScript.Wall_U.SetActive(false);
             return;
         }
-        if (relativePosition.y == 1)
+       /* if (nCell.gridPos.x < cCell.gridPos.x)
         {
-            neighbor.cScript.Wall_U.SetActive(false);
-            currentCell.cScript.Wall_D.SetActive(false);
-            return;
+            RemoveWall(nCell.cScript, 2);
+            RemoveWall(cCell.cScript, 1);
+        }
+        // Else if neighbour is right of current.
+        else if (nCell.gridPos.x > cCell.gridPos.x)
+        {
+            RemoveWall(nCell.cScript, 1);
+            RemoveWall(cCell.cScript, 2);
+        }
+        // Else if neighbour is above current.
+        else if (nCell.gridPos.y > cCell.gridPos.y)
+        {
+            RemoveWall(nCell.cScript, 4);
+            RemoveWall(cCell.cScript, 3);
+        }
+        // Else if neighbour is below current.
+        else if (nCell.gridPos.y < cCell.gridPos.y)
+        {
+            RemoveWall(nCell.cScript, 3);
+            RemoveWall(cCell.cScript, 4);
         }*/
+    }
+
+    private void RemoveWall(CellScript cScript, int wallID)
+    {
+        if (wallID == 1) cScript.Wall_L.SetActive(false);
+        else if (wallID == 2) cScript.Wall_R.SetActive(false);
+        else if (wallID == 3) cScript.Wall_U.SetActive(false);
+        else if (wallID == 4) cScript.Wall_D.SetActive(false);
     }
 
     private List<Cell> GetUnvisitedNeighbour(Cell curCell)
@@ -153,13 +202,15 @@ public class MazeGenerator : MonoBehaviour
         Vector2 pos = curCell.gridPos;
         List<Cell> neighborsList = new List<Cell>();
         Cell neighbor = new Cell();
+
+
         Vector2 U_adjacent = pos;//position of up adjacent grid
         U_adjacent.y -= 1;
         if(allCells.ContainsKey(U_adjacent))
         {
             neighbor = allCells[U_adjacent];
         }
-        if(unvisited.Contains(neighbor) && neighbor != curCell)
+        if(!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
         }
@@ -171,7 +222,7 @@ public class MazeGenerator : MonoBehaviour
         {
             neighbor = allCells[D_adjacent];
         }
-        if (unvisited.Contains(neighbor) && neighbor != curCell)
+        if (!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
         }
@@ -183,7 +234,7 @@ public class MazeGenerator : MonoBehaviour
         {
             neighbor = allCells[R_adjacent];
         }
-        if (unvisited.Contains(neighbor) && neighbor != curCell)
+        if (!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
         }
@@ -195,7 +246,7 @@ public class MazeGenerator : MonoBehaviour
         {
             neighbor = allCells[L_adjacent];
         }
-        if (unvisited.Contains(neighbor) && neighbor != curCell)
+        if (!visited.Contains(neighbor) && neighbor != curCell)
         {
             neighborsList.Add(neighbor);
         }
