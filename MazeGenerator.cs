@@ -139,54 +139,30 @@ public class MazeGenerator : MonoBehaviour
 
     private void AbolishAdjacentWall(Cell neighbor, Cell currentCell)
     {
-        Vector2 relativePosition = neighbor.gridPos - currentCell.gridPos;
         if (relativePosition.x == -1 )
-        {
-            neighbor.cScript.Wall_R.SetActive(false);
-            currentCell.cScript.Wall_L.SetActive(false);
+        {           
+            neighbor.cScript.Wall_D.SetActive(false);
+            currentCell.cScript.Wall_U.SetActive(false);
             return;
         }
         else if (relativePosition.x == 1)
-        {
-            neighbor.cScript.Wall_L.SetActive(false);
-            currentCell.cScript.Wall_R.SetActive(false);
-            return;
-        }
-        else if (relativePosition.y == -1)
         {
             neighbor.cScript.Wall_U.SetActive(false);
             currentCell.cScript.Wall_D.SetActive(false);
             return;
         }
-        else if (relativePosition.y == 1)
-        {
-            neighbor.cScript.Wall_D.SetActive(false);
-            currentCell.cScript.Wall_U.SetActive(false);
+        else if (relativePosition.y == -1)
+        {              
+            neighbor.cScript.Wall_L.SetActive(false);
+            currentCell.cScript.Wall_R.SetActive(false);
             return;
         }
-       /* if (nCell.gridPos.x < cCell.gridPos.x)
+        else if (relativePosition.y == 1)
         {
-            RemoveWall(nCell.cScript, 2);
-            RemoveWall(cCell.cScript, 1);
+            neighbor.cScript.Wall_R.SetActive(false);
+            currentCell.cScript.Wall_L.SetActive(false);
+            return;
         }
-        // Else if neighbour is right of current.
-        else if (nCell.gridPos.x > cCell.gridPos.x)
-        {
-            RemoveWall(nCell.cScript, 1);
-            RemoveWall(cCell.cScript, 2);
-        }
-        // Else if neighbour is above current.
-        else if (nCell.gridPos.y > cCell.gridPos.y)
-        {
-            RemoveWall(nCell.cScript, 4);
-            RemoveWall(cCell.cScript, 3);
-        }
-        // Else if neighbour is below current.
-        else if (nCell.gridPos.y < cCell.gridPos.y)
-        {
-            RemoveWall(nCell.cScript, 3);
-            RemoveWall(cCell.cScript, 4);
-        }*/
     }
 
     private void RemoveWall(CellScript cScript, int wallID)
