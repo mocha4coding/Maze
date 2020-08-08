@@ -167,31 +167,35 @@ public class MazeGenerator : MonoBehaviour
     {
         Vector2 pos = curCell.gridPos;
         List<Cell> neighborsList = new List<Cell>();
-        Cell neighbor = new Cell();
+        
 
         
         Vector2 R_adjacent = pos;//position of right adjacent grid
         R_adjacent.x += 1;
         if (allCells.ContainsKey(R_adjacent))
         {
+            Cell neighbor = new Cell();
             neighbor = allCells[R_adjacent];
-        }
-        if (!visited.Contains(neighbor) && neighbor != curCell)
-        {
-            neighborsList.Add(neighbor);
-            
+            if (!visited.Contains(neighbor) && neighbor != curCell)
+            {
+                neighborsList.Add(neighbor);
+
+            }
+
         }
 
         Vector2 D_adjacent = pos;//position of down adjacent grid
         D_adjacent.y += 1;
         if (allCells.ContainsKey(D_adjacent))
         {
+            Cell neighbor = new Cell();
             neighbor = allCells[D_adjacent];
-        }
-        if (!visited.Contains(neighbor) && neighbor != curCell)
-        {
-            neighborsList.Add(neighbor);
-            
+            if (!visited.Contains(neighbor) && neighbor != curCell)
+            {
+                neighborsList.Add(neighbor);
+
+            }
+
         }
 
 
@@ -199,12 +203,14 @@ public class MazeGenerator : MonoBehaviour
         U_adjacent.y -= 1;
         if (allCells.ContainsKey(U_adjacent))
         {
+            Cell neighbor = new Cell();
             neighbor = allCells[U_adjacent];
-        }
-        if (!visited.Contains(neighbor) && neighbor != curCell)
-        {
-            neighborsList.Add(neighbor);
-            
+            if (!visited.Contains(neighbor) && neighbor != curCell)
+            {
+                neighborsList.Add(neighbor);
+
+            }
+
         }
 
 
@@ -212,12 +218,14 @@ public class MazeGenerator : MonoBehaviour
         L_adjacent.x -= 1;
         if (allCells.ContainsKey(L_adjacent))
         {
+            Cell neighbor = new Cell();
             neighbor = allCells[L_adjacent];
-        }
-        if (!visited.Contains(neighbor) && neighbor != curCell)
-        {
-            neighborsList.Add(neighbor);
-            
+
+            if (!visited.Contains(neighbor) && neighbor != curCell)
+            {
+                neighborsList.Add(neighbor);
+
+            }
         }
         neighborsList = neighborsList.OrderBy(x => Guid.NewGuid()).ToList();//to shuffle the list
         return neighborsList;
